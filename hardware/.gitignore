@@ -1,0 +1,6 @@
+*.jou
+*.log
+
+build_vga/
+vivado*
+.Xil
