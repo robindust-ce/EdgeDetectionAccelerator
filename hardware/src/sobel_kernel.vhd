@@ -59,7 +59,13 @@ begin
 
   g_pipeline : if pipeline = 1 generate
 
-    s_line_concat <= ("0000" & signed(lb0_i(0)), "0000" & signed(lb0_i(1)), "0000" & signed(lb0_i(2)), "0000" & signed(lb1_i(0)), "0000" & signed(lb1_i(1)), "0000" & signed(lb1_i(2)), "0000" & signed(lb2_i(0)), "0000" & signed(lb2_i(1)), "0000" & signed(lb2_i(2)));
+    -- s_line_concat <= ("0000" & signed(lb0_i(0)), "0000" & signed(lb0_i(1)), "0000" & signed(lb0_i(2)), "0000" & signed(lb1_i(0)), "0000" & signed(lb1_i(1)), "0000" & signed(lb1_i(2)), "0000" & signed(lb2_i(0)), "0000" & signed(lb2_i(1)), "0000" & signed(lb2_i(2)));
+    
+    gen_line_concat : for i in 0 to 2 generate
+      s_line_concat(i) <= "0000" & signed(lb0_i(i));
+      s_line_concat(i+3) <= "0000" & signed(lb1_i(i));
+      s_line_concat(i+6) <= "0000" & signed(lb2_i(i));
+    end generate; 
 
     process (clk, rst) is
 
@@ -146,7 +152,7 @@ begin
 
     process (clk, rst) is
 
-      constant max_value         : signed(11 downto 0) := (data_width - 1 downto 0 => '1', others => '0'); -- max = 255 (000011111111)
+      constant max_value         : signed(11 downto 0) := to_signed(255, 12);--(data_width - 1 downto 0 => '1', others => '0'); -- max = 255 (000011111111)
       variable s_result_sobel_x  : signed(11 downto 0);
       variable s_result_sobel_y  : signed(11 downto 0);
       variable s_result_sobel_xy : signed(11 downto 0);
