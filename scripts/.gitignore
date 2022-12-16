@@ -1,0 +1,8 @@
+*.JPG
+*.jpg
+*.JPEG
+*.bmp
+*.txt
+
+__pycache__
+vunit_out/
