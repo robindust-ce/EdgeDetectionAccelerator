@@ -23,7 +23,7 @@ add_files src/vga_in_sim.vhd
 
 # add_files large_img.coe
 import_ip src/blk_mem_gen_1.xci
-file copy -force large_img.coe $outputDir/$ProjName.srcs/sources_1/ip/blk_mem_gen_1/
+file copy -force assets/large_img.coe $outputDir/$ProjName.srcs/sources_1/ip/blk_mem_gen_1/
 import_ip src/clk_wiz_0.xci
 
 
