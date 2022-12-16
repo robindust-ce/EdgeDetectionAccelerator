@@ -170,12 +170,12 @@ begin
   -- OUTPUTS
   valid_o <= s_l0_valid or s_l1_valid;
 
-  line0_o <= (others => (others => '0')) when (s_rd_linecount = 0) else
+  line0_o <= (others => (others => '0')) when (s_rd_linecount = 1) else
              s_l1_data_o;
 
   line1_o <= s_l0_data_o;
 
-  line2_o <= (others => (others => '0')) when (s_rd_linecount = im_lines - 1) else
+  line2_o <= (others => (others => '0')) when (s_rd_linecount = im_lines) else
              s_line_internal;
 
   hcount_o <= to_unsigned(s_rd_colcount, 10);
