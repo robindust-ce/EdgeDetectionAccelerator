@@ -31,13 +31,15 @@ The sobel operator is applied in the x- and y-direction of the image, which resu
     X = [ 2  0 -2 ]   Y = [ 0  0  0 ]
         [ 1  0 -1 ]       [-1 -2 -1 ]
 
+The sobel kernel module is the most complex part of the design and forms a critical path for timing. It therefore implements a pipelined version in addition to the non-pipelined version, which can be selected using a VHDL generic. The pipelined version allows higher clock speeds and therefore higher image resolutions and refresh rates, while the non-pipelined variant uses less resources.
+
 The following images show the accelerator output at it's different stages captured in simulation:
 
 Original Image             |  Gauss Smoothing
 :-------------------------:|:-------------------------:
-![](assets/leo.jpg?raw=true "")  |  ![](assets/gauss.jpg?raw=true "")
+![original](assets/leo.jpg?raw=true "")  |  ![gauss](assets/gauss.jpg?raw=true "")
 Sobel Filter             |  Sobel Filter with threshold
-![](assets/sobel.jpg?raw=true "")  |  ![](assets/sobel_th.jpg?raw=true "")
+![sobel](assets/sobel.jpg?raw=true "")  |  ![sobel threshold](assets/sobel_th.jpg?raw=true "")
 
 ## Area usage and maximum frequency
 
@@ -50,4 +52,7 @@ Python3, VUNIT and GHDL (other simulators might work but not tested)
 
 ## Reference Design
 
+The reference design uses the Digilent Nexys A7. As the board does not have any video input ports the incoming pixel stream is simulated. The image is stored in BRAMs and continuously read and provided to the Edge Detection Accelerator in a VGA-like fashion. The pixel stream of the accelerator output is displayed using the VGA output at a resolution of 640 by 480 pixels at 60 Hz. Using the slide switches of the Nexys A7 the threshold of the sobel stage can be adjusted. If all switches are switched off no threshold is applied.
+The VGA_build_flow.tcl script can be used to create a vivado project with the reference design.
 
+![](assets/vga_demo.jpg?raw=true "")
