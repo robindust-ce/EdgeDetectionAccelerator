@@ -17,7 +17,7 @@ input_file = Path('.') / "vunit_out" / "input_img.txt"
 gray_control = Path('.') / "vunit_out" / "gray_control"
 gauss_control = Path('.') / "vunit_out" / "gauss_control"
 sobel_control = Path('.') / "vunit_out" / "sobel_control"
-input_img = Path("..") / "assets" / "leo.jpg"
+input_img = Path(".") / "assets" / "leo.jpg"
 python_results = {}
 
 def compare_files(vhdl_out, python_out):
