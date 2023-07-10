@@ -4,7 +4,7 @@
 # import numpy as np
 import subprocess
 import os.path
-from edgedetect_reference import *
+# from edgedetect_reference import *
 
 from pathlib import Path
 from itertools import product
