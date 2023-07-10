@@ -1,4 +1,4 @@
-# from PIL import Image
+from PIL import Image
 import sys
 import numpy as np
 import argparse
