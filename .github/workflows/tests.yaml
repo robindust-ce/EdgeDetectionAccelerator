@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.9"]
 
     steps:
       - uses: actions/checkout@v3
@@ -27,4 +27,4 @@ jobs:
           python scripts/edgedetect_reference.py -f assets/leo.jpg -t 0
       - uses: VUnit/vunit_action@v0.1.0
         with:
-          run_file: scripts/run.py
+          run_file: python scripts/run.py
