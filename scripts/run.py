@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # from PIL import Image
-import numpy as np
+# import numpy as np
 import subprocess
 import os.path
 from edgedetect_reference import *
