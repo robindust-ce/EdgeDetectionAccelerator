@@ -1,4 +1,4 @@
-from PIL import Image
+import Image
 import sys
 import numpy as np
 
