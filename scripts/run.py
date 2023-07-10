@@ -118,7 +118,7 @@ TB_GENERATED = LIB.test_bench("edgedetect_tb")
 TB_GENERATED.set_generic("input_file", input_file.resolve())
 TB_GENERATED.set_generic("threshold", threshold)
 
-subprocess.run(["python3", "rgb2txt.py", "-i", input_img, "-o", input_file])
+subprocess.run(["python3", "scripts/rgb2txt.py", "-i", input_img, "-o", input_file])
 #subprocess.run(["python3", "edgedetect_reference.py", "-f", "leo.jpg", "-t", str(0)]);
 
 for test in TB_GENERATED.get_tests():
