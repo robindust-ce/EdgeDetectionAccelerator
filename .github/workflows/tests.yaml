@@ -25,3 +25,6 @@ jobs:
         run: |
           mkdir vunit_out
           python scripts/edgedetect_reference.py -f assets/leo.jpg -t 0
+      - uses: VUnit/vunit_action@v0.1.0
+        with:
+          run_file: scripts/run.py
