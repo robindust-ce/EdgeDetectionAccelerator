@@ -8,6 +8,8 @@ parser.add_argument("-i", "--input_path", help="Path to the input image", requir
 parser.add_argument("-o", "--output_path", help="Path to the output text file", required=True)
 args = parser.parse_args()
 
+print("Generating txt file from image")
+
 im = Image.open(args.input_path)
 
 data = np.asarray(im, dtype=np.uint8)
