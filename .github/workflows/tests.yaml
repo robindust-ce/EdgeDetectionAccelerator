@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install Pillow numpy pathlib scikit-image argparse ruff image vunit
+          pip install Pillow numpy pathlib scikit-image argparse ruff image vunit_hdl
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with pytest
         run: |
