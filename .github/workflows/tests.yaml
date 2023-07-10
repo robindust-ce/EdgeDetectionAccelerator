@@ -13,7 +13,7 @@ jobs:
         run: |
           sudo apt-get install python3
           python -m pip install --upgrade pip
-          pip install pillow numpy pathlib scikit-image argparse
+          pip install pillow numpy pathlib scikit-image argparse --no-build-isolation
       - uses: actions/checkout@v2
       - uses: VUnit/vunit_action@v0.1.0
         with:
