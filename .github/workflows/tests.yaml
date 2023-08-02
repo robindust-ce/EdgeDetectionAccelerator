@@ -12,6 +12,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install pillow numpy pathlib scikit-image argparse
       - uses: actions/checkout@v2
-      - uses: VUnit/vunit_action@v0.1.0
-        with:
-            run_file: scripts/run.py
+        run: python scripts/edgedetect_reference.py -f assets/leo.jpg

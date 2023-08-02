@@ -129,9 +129,9 @@ def main():
 
     python_results["sobel_out"] = sobel_xy
 
-    save_as_text(python_results["gray_out"], "vunit_out/gray_control")
-    save_as_text(python_results["gauss_out"], "vunit_out/gauss_control")
-    save_as_text(python_results["sobel_out"], "vunit_out/sobel_control")
+    save_as_text(python_results["gray_out"], "scripts/vunit_out/gray_control")
+    save_as_text(python_results["gauss_out"], "scripts/vunit_out/gauss_control")
+    save_as_text(python_results["sobel_out"], "scripts/vunit_out/sobel_control")
 
 
 if __name__ == "__main__":
