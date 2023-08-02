@@ -14,3 +14,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run reference script
         run: python scripts/edgedetect_reference.py -f assets/leo.jpg
+
+      - name: Archive run results
+        uses: actions/upload-artifact@v3
+        with:
+            name: sobel-out
+            path: scripts/vunit_out/sobel_control
+
