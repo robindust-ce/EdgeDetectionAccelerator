@@ -27,7 +27,7 @@ jobs:
         run : python scripts/txt2gray.py -i scripts/vunit_out/sobel_control -o scripts/vunit_out/sobel_control.jpg
 
       - name: Run VUnit tests
-        run: ls scripts/vunit_out -l && python scripts/run.py "*gray=True,gauss=True,sobel=True*" -v -o scripts/vunit_out
+        run: python scripts/run.py "*gray=True,gauss=True,sobel=True*" -v -o scripts/vunit_out
 
       - name: Archive run results
         uses: actions/upload-artifact@v3

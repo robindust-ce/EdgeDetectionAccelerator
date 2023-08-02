@@ -5,7 +5,7 @@
 - [Simulation](#simulation)
 - [Reference design](#reference-design)
 
-
+![VUNIT Tests](https://github.com/robindust-ce/EdgeDetectionAccelerator/actions/workflows/tests.yaml/badge.svg)
 
 ## Description
 
