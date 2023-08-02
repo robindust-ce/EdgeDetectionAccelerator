@@ -7,11 +7,11 @@ from itertools import product
 threshold = 0
 
 
-input_file = Path('.') / "vunit_out" / "input_img.txt"
-gray_control = Path('.') / "vunit_out" / "gray_control"
-gauss_control = Path('.') / "vunit_out" / "gauss_control"
-sobel_control = Path('.') / "vunit_out" / "sobel_control"
-input_img = Path("..") / "assets" / "leo.jpg"
+input_file = Path('.') / "scripts" / "vunit_out" / "input_img.txt"
+gray_control = Path('.') / "scripts" / "vunit_out" / "gray_control"
+gauss_control = Path('.') / "scripts" / "vunit_out" / "gauss_control"
+sobel_control = Path('.') / "scripts" / "vunit_out" / "sobel_control"
+input_img = Path('.') / "assets" / "leo.jpg"
 python_results = {}
 
 def compare_files(vhdl_out, python_out):
@@ -42,7 +42,6 @@ def make_post_check(gen_gray, gen_gauss, gen_sobel):
         if gen_gray or gen_gauss or gen_sobel:
             if gen_gray:
                 output_file = Path(output_path) / "gray_out.txt"
-                #subprocess.run(["python3", "txt2gray.py", "-i", output_file, "-o", Path(output_path) / "gray_out.jpg"])
                 if not compare_files(output_file, gray_control):
                     print("Gray error")
                     return False
@@ -50,15 +49,12 @@ def make_post_check(gen_gray, gen_gauss, gen_sobel):
         if gen_gauss or gen_sobel:
             if gen_gauss:
                 output_file = Path(output_path) / "gauss_out.txt"
-                #subprocess.run(["python3", "txt2gray.py", "-i", output_file, "-o", Path(output_path) / "gauss_out.jpg"])
                 if not compare_files(output_file, gauss_control):
                     print("Gauss error")
                     return False
 
         if gen_sobel:
-            #if not os.path.exists(sobel_control):
             output_file = Path(output_path) / "sobel_out.txt"
-            #subprocess.run(["python3", "txt2gray.py", "-i", output_file, "-o", Path(output_path) / "sobel_out.jpg"])
             if not compare_files(output_file, sobel_control):
                 print("Sobel error")
                 return False
@@ -102,8 +98,6 @@ TB_GENERATED = LIB.test_bench("edgedetect_tb")
 TB_GENERATED.set_generic("input_file", input_file.resolve())
 TB_GENERATED.set_generic("threshold", threshold)
 
-#subprocess.run(["python3", "rgb2txt.py", "-i", input_img, "-o", input_file])
-#subprocess.run(["python3", "edgedetect_reference.py", "-f", "leo.jpg", "-t", str(0)]);
 
 for test in TB_GENERATED.get_tests():
     generate_tests(test)
