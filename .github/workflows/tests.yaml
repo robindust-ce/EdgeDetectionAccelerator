@@ -12,4 +12,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install pillow numpy pathlib scikit-image argparse
       - uses: actions/checkout@v2
+      - name: Run reference script
         run: python scripts/edgedetect_reference.py -f assets/leo.jpg
