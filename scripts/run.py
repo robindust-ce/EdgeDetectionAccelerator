@@ -1,14 +1,8 @@
-#!/usr/bin/env python3
+from vunit import VUnit
 
-from PIL import Image
-import numpy as np
-import subprocess
 import os.path
-from edgedetect_reference import *
-
 from pathlib import Path
 from itertools import product
-from vunit import VUnit
 
 threshold = 0
 
@@ -45,12 +39,7 @@ def make_post_check(gen_gray, gen_gauss, gen_sobel):
         This function recives the output_path of the test
         """
 
-        img = io.imread(input_img.resolve())
-
         if gen_gray or gen_gauss or gen_sobel:
-            #if not os.path.exists(gray_control):
-            python_results["gray_out"] = to_grayscale(img)
-            save_as_text(python_results["gray_out"], gray_control)
             if gen_gray:
                 output_file = Path(output_path) / "gray_out.txt"
                 #subprocess.run(["python3", "txt2gray.py", "-i", output_file, "-o", Path(output_path) / "gray_out.jpg"])
@@ -59,9 +48,6 @@ def make_post_check(gen_gray, gen_gauss, gen_sobel):
                     return False
 
         if gen_gauss or gen_sobel:
-            #if not os.path.exists(gauss_control):
-            python_results["gauss_out"] = apply_gauss(python_results["gray_out"])
-            save_as_text(python_results["gauss_out"], gauss_control)
             if gen_gauss:
                 output_file = Path(output_path) / "gauss_out.txt"
                 #subprocess.run(["python3", "txt2gray.py", "-i", output_file, "-o", Path(output_path) / "gauss_out.jpg"])
@@ -71,8 +57,6 @@ def make_post_check(gen_gray, gen_gauss, gen_sobel):
 
         if gen_sobel:
             #if not os.path.exists(sobel_control):
-            python_results["sobel_out"] = apply_sobel(python_results["gauss_out"], threshold)
-            save_as_text(python_results["sobel_out"], sobel_control)
             output_file = Path(output_path) / "sobel_out.txt"
             #subprocess.run(["python3", "txt2gray.py", "-i", output_file, "-o", Path(output_path) / "sobel_out.jpg"])
             if not compare_files(output_file, sobel_control):
@@ -118,7 +102,7 @@ TB_GENERATED = LIB.test_bench("edgedetect_tb")
 TB_GENERATED.set_generic("input_file", input_file.resolve())
 TB_GENERATED.set_generic("threshold", threshold)
 
-subprocess.run(["python3", "rgb2txt.py", "-i", input_img, "-o", input_file])
+#subprocess.run(["python3", "rgb2txt.py", "-i", input_img, "-o", input_file])
 #subprocess.run(["python3", "edgedetect_reference.py", "-f", "leo.jpg", "-t", str(0)]);
 
 for test in TB_GENERATED.get_tests():
