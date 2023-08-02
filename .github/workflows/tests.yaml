@@ -29,9 +29,6 @@ jobs:
       - name: Run VUnit tests
         run: ls scripts/vunit_out -l && python scripts/run.py "*gray=True,gauss=True,sobel=True*" -v -o scripts/vunit_out
 
-      - name: Create jpg from fpga result
-        run: for dir in scripts/vunit_out/test_output/*; do if [ -d "$dir" ]; then (python3 scripts/txt2gray.py -i $dir/*out.txt -o $dir.jpg) fi ;done
-
       - name: Archive run results
         uses: actions/upload-artifact@v3
         with:
