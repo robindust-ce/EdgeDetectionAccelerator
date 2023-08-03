@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 from skimage import io
+import os
 
 def save_as_text(img, filename):
     if len(img.shape) == 3:
@@ -120,6 +121,10 @@ def main():
     parser.add_argument("-f", "--filepath", metavar="path_to_file", required=True)
     parser.add_argument("-t", "--threshold", required=False, type=int, default=0)
     args = parser.parse_args()
+
+    if not os.path.exists("scripts/vunit_out"):
+        os.makedirs("scripts/vunit_out")
+
     img = io.imread(args.filepath)
 
     python_results = {}
@@ -129,9 +134,9 @@ def main():
 
     python_results["sobel_out"] = sobel_xy
 
-    save_as_text(python_results["gray_out"], "vunit_out/gray_control")
-    save_as_text(python_results["gauss_out"], "vunit_out/gauss_control")
-    save_as_text(python_results["sobel_out"], "vunit_out/sobel_control")
+    save_as_text(python_results["gray_out"], "scripts/vunit_out/gray_control")
+    save_as_text(python_results["gauss_out"], "scripts/vunit_out/gauss_control")
+    save_as_text(python_results["sobel_out"], "scripts/vunit_out/sobel_control")
 
 
 if __name__ == "__main__":

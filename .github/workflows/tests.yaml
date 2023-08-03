@@ -10,8 +10,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pillow numpy pathlib scikit-image argparse
-      - uses: actions/checkout@v2
-      - uses: VUnit/vunit_action@v0.1.0
+          pip install pillow numpy pathlib scikit-image argparse vunit_hdl
+
+      - uses: ghdl/setup-ghdl-ci@nightly
         with:
-            run_file: scripts/run.py
+            backend: mcode
+
+      - uses: actions/checkout@v2
+
+      - name: Run VUnit tests
+        run: python scripts/run.py "*gray=True,gauss=True,sobel=True*" -v -o scripts/vunit_out
+
+      - name: Archive run results
+        uses: actions/upload-artifact@v3
+        with:
+            name: vunit-out
+            path: scripts/vunit_out
+

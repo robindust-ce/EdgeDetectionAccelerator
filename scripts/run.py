@@ -13,11 +13,11 @@ from vunit import VUnit
 threshold = 0
 
 
-input_file = Path('.') / "vunit_out" / "input_img.txt"
-gray_control = Path('.') / "vunit_out" / "gray_control"
-gauss_control = Path('.') / "vunit_out" / "gauss_control"
-sobel_control = Path('.') / "vunit_out" / "sobel_control"
-input_img = Path("..") / "assets" / "leo.jpg"
+input_file = Path('.') / "scripts" / "vunit_out" / "input_img.txt"
+gray_control = Path('.') / "scripts" / "vunit_out" / "gray_control"
+gauss_control = Path('.') / "scripts" / "vunit_out" / "gauss_control"
+sobel_control = Path('.') / "scripts" / "vunit_out" / "sobel_control"
+input_img = Path('.') / "assets" / "leo.jpg"
 python_results = {}
 
 def compare_files(vhdl_out, python_out):
@@ -118,7 +118,7 @@ TB_GENERATED = LIB.test_bench("edgedetect_tb")
 TB_GENERATED.set_generic("input_file", input_file.resolve())
 TB_GENERATED.set_generic("threshold", threshold)
 
-subprocess.run(["python3", "rgb2txt.py", "-i", input_img, "-o", input_file])
+subprocess.run(["python3", "scripts/rgb2txt.py", "-i", input_img, "-o", input_file])
 #subprocess.run(["python3", "edgedetect_reference.py", "-f", "leo.jpg", "-t", str(0)]);
 
 for test in TB_GENERATED.get_tests():
