@@ -42,7 +42,26 @@ Sobel Filter             |  Sobel Filter with threshold
 ![sobel](assets/sobel.jpg?raw=true "")  |  ![sobel threshold](assets/sobel_th.jpg?raw=true "")
 
 ## Area usage and maximum frequency
+Two different design variants were built for this project. The build results are summarized in the following table.
 
+| | Min. Utilization Design | Max. Performance Design |
+| ----- | ----- | ----- |
+| Fmax (MHz) | 51 | 102 |
+| Pixel Latency (clock cycles) | 2885 (~56 µs) | 2888 (~28 µs)|
+| Slices | 1182 | 1268|
+| LUTs (total) | 3611 | 4131 |
+| LUTs as Distributed RAM | 2240 | 2240 |
+| Registers | 492 | 625 |
+
+(outdated, last updated: 20.08.2022)
+
+The min. utilization design is not pipelined, while the max. performance design uses pipelining on critical paths resulting in a significantly higher Fmax and moderately increased resource utilization. 
+
+The two designs were also built using different Vivado compilation strategies.
+
+Min. Utilization Design: flow_AreaOptimized\textunderscore high / Area_ExploreWithRemap
+		
+Max. Utilization Design: flow_AlternateRoutability / flow_RunPhysOpt
 
 ## Simulation
 
