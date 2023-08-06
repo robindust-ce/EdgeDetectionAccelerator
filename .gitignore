@@ -2,5 +2,6 @@
 *.log
 
 build_vga/
+build_core/
 vivado*
 .Xil

@@ -18,7 +18,7 @@ library ieee;
 
 entity sys_top is
   generic (
-    pipeline : integer := 1;
+    pipeline : integer := 0;
     im_lines : integer := 480;
     im_cols  : integer := 640
   );
@@ -31,14 +31,14 @@ entity sys_top is
     blue_i  : in    std_logic_vector(7 downto 0);
     th_i    : in    std_logic_vector(10 downto 0);
 
---     hcount_o : out   unsigned(9 downto 0);
---     vcount_o : out   unsigned(9 downto 0);
---     data_o   : out   std_logic_vector(7 downto 0)
-    VGA_R   : out   std_logic_vector(3 downto 0);
-    VGA_G   : out   std_logic_vector(3 downto 0);
-    VGA_B   : out   std_logic_vector(3 downto 0);
-    VGA_HS  : out   std_logic;
-    VGA_VS  : out   std_logic
+    --     hcount_o : out   unsigned(9 downto 0);
+    --     vcount_o : out   unsigned(9 downto 0);
+    --     data_o   : out   std_logic_vector(7 downto 0)
+    vga_r  : out   std_logic_vector(3 downto 0);
+    vga_g  : out   std_logic_vector(3 downto 0);
+    vga_b  : out   std_logic_vector(3 downto 0);
+    vga_hs : out   std_logic;
+    vga_vs : out   std_logic
   );
 end entity sys_top;
 
@@ -46,6 +46,7 @@ architecture behavioral of sys_top is
 
   component gauss_top is
     generic (
+      pipeline : integer := 1;
       im_lines : integer := 480;
       im_cols  : integer := 640
     );
@@ -90,29 +91,29 @@ architecture behavioral of sys_top is
     );
   end component;
 
-     component VGAcontrol
-         generic(
-             TOTAL_ROW_NR        : integer := 525;
-             ACTIVE_ROW_NR       : integer := 480;
-             TOTAL_COL_NR        : integer := 800;
-             ACTIVE_COL_NR       : integer := 640;
-             VERT_FRONT_PORCH    : integer := 10;
-             VERT_BACK_PORCH     : integer := 33;
-             HOR_FRONT_PORCH     : integer := 16;
-             HOR_BACK_PORCH      : integer := 48
-         );
-         port(
-             CLK             : in    std_logic;
-             DAT_i           : in    std_logic_vector(7 downto 0);
-             vcount_i        : in unsigned(9 downto 0);
-             hcount_i        : in unsigned(9 downto 0);
-             VGA_R           : out   std_logic_vector(3 downto 0);
-             VGA_G           : out   std_logic_vector(3 downto 0);
-             VGA_B           : out   std_logic_vector(3 downto 0);
-             VGA_HS          : out   std_logic;
-             VGA_VS          : out   std_logic
-         );
-     end component;
+  component vgacontrol is
+    generic (
+      total_row_nr     : integer := 525;
+      active_row_nr    : integer := 480;
+      total_col_nr     : integer := 800;
+      active_col_nr    : integer := 640;
+      vert_front_porch : integer := 10;
+      vert_back_porch  : integer := 33;
+      hor_front_porch  : integer := 16;
+      hor_back_porch   : integer := 48
+    );
+    port (
+      clk      : in    std_logic;
+      dat_i    : in    std_logic_vector(7 downto 0);
+      vcount_i : in    unsigned(9 downto 0);
+      hcount_i : in    unsigned(9 downto 0);
+      vga_r    : out   std_logic_vector(3 downto 0);
+      vga_g    : out   std_logic_vector(3 downto 0);
+      vga_b    : out   std_logic_vector(3 downto 0);
+      vga_hs   : out   std_logic;
+      vga_vs   : out   std_logic
+    );
+  end component;
 
   signal valid_int1 : std_logic;
   signal valid_int2 : std_logic;
@@ -139,6 +140,9 @@ begin
     );
 
   i_gauss : component gauss_top
+    generic map (
+      pipeline => pipeline
+    )
     port map (
       clk     => clk,
       rst     => rst,
@@ -164,18 +168,18 @@ begin
       valid_o  => open
     );
 
-     i_vga_out : VGAControl
-         port map (
-             CLK => clk,
-             DAT_i => data_int3,
-             vcount_i => vcount_int,
-             hcount_i => hcount_int,
-             VGA_R => VGA_R,
-             VGA_G => VGA_G,
-             VGA_B => VGA_B,
-             VGA_HS => VGA_HS,
-             VGA_VS => VGA_VS
-             );
+  i_vga_out : component vgacontrol
+    port map (
+      clk      => clk,
+      dat_i    => data_int3,
+      vcount_i => vcount_int,
+      hcount_i => hcount_int,
+      vga_r    => vga_r,
+      vga_g    => vga_g,
+      vga_b    => vga_b,
+      vga_hs   => vga_hs,
+      vga_vs   => vga_vs
+    );
 
   process (clk) is
   begin

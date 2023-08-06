@@ -62,9 +62,9 @@ architecture behavioral of sobel_top is
 
   component sobel_kernel is
     generic (
-    data_width : integer := 8;
-    pipeline   : integer := 1
-  );
+      data_width : integer := 8;
+      pipeline   : integer := 1
+    );
     port (
       lb0_i      : in    t_LINEBUFFER_OUT;
       lb1_i      : in    t_LINEBUFFER_OUT;

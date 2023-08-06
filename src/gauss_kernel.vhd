@@ -15,6 +15,9 @@ library work;
   use work.types_lib.all;
 
 entity gauss_kernel is
+  generic (
+    pipeline : integer := 1
+  );
   port (
     clk     : in    std_logic;
     rst     : in    std_logic;
@@ -47,81 +50,115 @@ begin
 
   s_line_concat <= (line0_i(0), line0_i(1), line0_i(2), line1_i(0), line1_i(1), line1_i(2), line2_i(0), line2_i(1), line2_i(2));
 
-  process (clk) is
+  g_pipeline : if pipeline = 1 generate
 
-    variable v_acc_internal : unsigned(11 downto 0) := (others => '0');
+    process (clk) is
 
-  begin
+      variable v_acc_internal : unsigned(11 downto 0) := (others => '0');
 
-    if rising_edge(clk) then
-      if (rst = '0') then
-        valid_o         <= '0';
-        v_acc_internal  := (others => '0');
-        s_acc_internal0 <= (others => '0');
-        s_acc_internal1 <= (others => '0');
-        s_mul_internal0 <= (others => (others => '0'));
-        s_mul_internal1 <= (others => (others => '0'));
-      else
+    begin
 
-        for I in 0 to 3 loop
+      if rising_edge(clk) then
+        if (rst = '0') then
+          valid_o         <= '0';
+          v_acc_internal  := (others => '0');
+          s_acc_internal0 <= (others => '0');
+          s_acc_internal1 <= (others => '0');
+          s_mul_internal0 <= (others => (others => '0'));
+          s_mul_internal1 <= (others => (others => '0'));
+        else
 
-          case I is
+          for I in 0 to 3 loop
 
-            when 0 =>
+            case I is
 
-              if (valid_i = '1') then
+              when 0 =>
 
-                mul : for J in 0 to 8 loop
+                if (valid_i = '1') then
 
-                  s_mul_internal0(J) <= (c_gauss_kernel(J)) * (s_line_concat(J));
+                  mul : for J in 0 to 8 loop
 
-                end loop mul;
+                    s_mul_internal0(J) <= (c_gauss_kernel(J)) * (s_line_concat(J));
 
-              end if;
-              s_valid_t0 <= valid_i;
+                  end loop mul;
 
-            when 1 =>
+                end if;
+                s_valid_t0 <= valid_i;
 
-              for J in 0 to 4 loop
+              when 1 =>
 
-                v_acc_internal := v_acc_internal + s_mul_internal0(J);
+                for J in 0 to 4 loop
 
-              end loop;
+                  v_acc_internal := v_acc_internal + s_mul_internal0(J);
 
-              s_mul_internal1 <= s_mul_internal0;
-              s_acc_internal0 <= v_acc_internal;
-              v_acc_internal := (others => '0');
-              s_valid_t1     <= s_valid_t0;
+                end loop;
 
-            when 2 =>
-              for J in 5 to 8 loop
+                s_mul_internal1 <= s_mul_internal0;
+                s_acc_internal0 <= v_acc_internal;
+                v_acc_internal  := (others => '0');
+                s_valid_t1      <= s_valid_t0;
 
-                v_acc_internal := v_acc_internal + s_mul_internal1(J);
+              when 2 =>
 
-              end loop;
+                for J in 5 to 8 loop
 
-              s_acc_internal1 <= v_acc_internal+s_acc_internal0;
-              v_acc_internal := (others => '0');
-              s_valid_t2     <= s_valid_t1;
+                  v_acc_internal := v_acc_internal + s_mul_internal1(J);
 
+                end loop;
 
-            when 3 =>
+                s_acc_internal1 <= v_acc_internal + s_acc_internal0;
+                v_acc_internal  := (others => '0');
+                s_valid_t2      <= s_valid_t1;
 
-              s_result_internal <= std_logic_vector(shift_right(s_acc_internal1, 4));
-              valid_o           <= s_valid_t2;
+              when 3 =>
 
-            when others =>
+                s_result_internal <= std_logic_vector(shift_right(s_acc_internal1, 4));
+                valid_o           <= s_valid_t2;
 
-              null;
+              when others =>
 
-          end case;
+                null;
 
-        end loop;
+            end case;
 
+          end loop;
+
+        end if;
       end if;
-    end if;
 
-  end process;
+    end process;
+
+  end generate g_pipeline;
+
+  g_nopipeline : if pipeline = 0 generate
+
+    process (clk) is
+
+      variable v_acc_internal : unsigned(11 downto 0) := (others => '0');
+
+    begin
+
+      if rising_edge(clk) then
+        if (rst = '0') then
+          valid_o        <= '0';
+          v_acc_internal := (others => '0');
+        else
+          valid_o <= valid_i;
+
+          mul : for J in 0 to 8 loop
+
+            v_acc_internal := v_acc_internal + (c_gauss_kernel(J) * s_line_concat(J));
+
+          end loop mul;
+
+          s_result_internal <= std_logic_vector(shift_right(v_acc_internal, 4));
+          v_acc_internal    := (others => '0');
+        end if;
+      end if;
+
+    end process;
+
+  end generate g_nopipeline;
 
   pixel_o <= s_result_internal(7 downto 0);
 
