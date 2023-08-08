@@ -46,32 +46,87 @@ Two different design variants were built for this project. The build results are
 
 | | Min. Utilization Design | Max. Performance Design |
 | ----- | ----- | ----- |
-| Fmax (MHz) | 51 | 102 |
-| Pixel Latency (clock cycles) | 2885 (~56 µs) | 2888 (~28 µs)|
-| Slices | 1182 | 1268|
-| LUTs (total) | 3611 | 4131 |
-| LUTs as Distributed RAM | 2240 | 2240 |
-| Registers | 492 | 625 |
+| Pixel Clock (MHz) | 25.175 | 148.5 |
+| Pixel Latency (clock cycles) | 2885 (~56 µs) | 2889 (~28 µs)|
+| Slices | 695 | 750 |
+| LUTs (total) | 2214 | 2363 |
+| LUTs as Distributed RAM | 1440 | 1440 |
+| Registers | 330 | 574 |
 
-(outdated, last updated: 20.08.2022)
+(last updated: 06.08.2023, commit f23d32e)
 
-The min. utilization design is not pipelined, while the max. performance design uses pipelining on critical paths resulting in a significantly higher Fmax and moderately increased resource utilization. 
+The min. utilization design is not pipelined, while the max. performance design uses pipelining on critical paths resulting in a significantly higher Fmax and moderately increased resource utilization. The min. utilization device was compiled with the appropriate pixel clock frequency for the standard VGA 640x480 resolution at 60 Hz. The max. performance design can support a pixel clock frequency for 1080p (1920x1080) at 60 Hz.
 
-The two designs were also built using different Vivado compilation strategies.
 
-Min. Utilization Design: flow_AreaOptimized\textunderscore high / Area_ExploreWithRemap
-		
-Max. Utilization Design: flow_AlternateRoutability / flow_RunPhysOpt
+The two designs were also built using different Vivado compilation strategies (see core_build_flow.tcl).
+
+Min. Utilization Design: AreaOptimized_high / Area_ExploreWithRemap
+
+Max. Performance Design: AlternateRoutability / RunPhysOpt
+
+```console
+vivado -mode batch -nolog -nojournal -source core_build_flow.tcl
+```
 
 ## Simulation
 
 Requirements:
 
-Python3, VUNIT and GHDL (other simulators might work but not tested)
+The simulation uses the ![VUNIT framework](https://vunit.github.io/) in combination with ![GHDL](https://ghdl.github.io/ghdl/).
+![Other simulators](https://vunit.github.io/cli.html#simulator-selection) might work but were not tested.
+
+```sh
+# Python
+sudo apt-get install python3.8
+
+# Python packages
+pip install pillow numpy pathlib scikit-image argparse vunit_hdl
+
+# Simulator (see VUNIT supported simulators)
+sudo apt-get install ghdl
+```
+
+The verification is done using a reference implementation in Python. The simulation converts the "leo.jpg" file to a text format and feeds it to the VHDL and Python implementations. Results are compared and differences reported. Example usage:
+
+```console
+usr:~$ python3 scripts/run.py -l
+lib.edgedetect_tb.gray=False,gauss=False,sobel=True.Test
+lib.edgedetect_tb.gray=False,gauss=True,sobel=False.Test
+lib.edgedetect_tb.gray=False,gauss=True,sobel=True.Test
+lib.edgedetect_tb.gray=True,gauss=False,sobel=False.Test
+lib.edgedetect_tb.gray=True,gauss=False,sobel=True.Test
+lib.edgedetect_tb.gray=True,gauss=True,sobel=False.Test
+lib.edgedetect_tb.gray=True,gauss=True,sobel=True.Test
+Listed 7 tests
+
+usr:~$ python3 scripts/run.py -v "lib.edgedetect_tb.gray=True,gauss=False,sobel=False.Test"
+...
+pass (P=1 S=0 F=0 T=1) lib.edgedetect_tb.gray=True,gauss=False,sobel=False.Test (10.3 seconds)
+
+==== Summary ====================================================================
+pass lib.edgedetect_tb.gray=True,gauss=False,sobel=False.Test (10.3 seconds)
+=================================================================================
+pass 1 of 1
+=================================================================================
+Total time was 10.3 seconds
+Elapsed time was 10.3 seconds
+=================================================================================
+All passed!
+
+```
+The different test cases define, which stages of the algorithm should be recorded and compared with the reference implementation to reduce runtime. Results are stored under repo_dir/scripts/vunit_out. In addition all scripts can be called independently (e.g. for converting txt to img and vice versa).
+The "gray=True,gauss=True,sobel=True.Test" testcase is also run as a ![GitHub Action](https://github.com/robindust-ce/EdgeDetectionAccelerator/actions) on pull requests and the vunit_out folder is stored as an artifact.
 
 ## Reference Design
 
 The reference design uses the Digilent Nexys A7. As the board does not have any video input ports the incoming pixel stream is simulated. The image is stored in BRAMs and continuously read and provided to the Edge Detection Accelerator in a VGA-like fashion. The pixel stream of the accelerator output is displayed using the VGA output at a resolution of 640 by 480 pixels at 60 Hz. Using the slide switches of the Nexys A7 the threshold of the sobel stage can be adjusted. If all switches are switched off no threshold is applied.
 The VGA_build_flow.tcl script can be used to create a vivado project with the reference design.
 
+```console
+vivado -mode batch -nolog -nojournal -source VGA_build_flow.tcl
+```
+
 ![](assets/vga_demo.jpg?raw=true "")
+
+
+Future Work (in progress): Add ![Nexys Video](https://digilent.com/reference/programmable-logic/nexys-video/reference-manual) reference design with HDMI sink and source.

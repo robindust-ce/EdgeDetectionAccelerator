@@ -17,6 +17,7 @@ library work;
 
 entity gauss_top is
   generic (
+    pipeline  : integer := 1;
     tot_lines : integer := 525;
     tot_cols  : integer := 800;
     im_lines  : integer := 480;
@@ -56,6 +57,9 @@ architecture behavioral of gauss_top is
   end component;
 
   component gauss_kernel is
+    generic (
+      pipeline : integer := 0
+    );
     port (
       line0_i : in    t_LINEBUFFER_OUT;
       line1_i : in    t_LINEBUFFER_OUT;
@@ -90,6 +94,9 @@ begin
     );
 
   i_gauss : component gauss_kernel
+    generic map (
+      pipeline => pipeline
+    )
     port map (
       line0_i => s_kernel_din0,
       line1_i => s_kernel_din1,

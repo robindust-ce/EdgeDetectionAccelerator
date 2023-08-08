@@ -15,6 +15,9 @@ library work;
   use work.types_lib.all;
 
 entity gauss_kernel is
+  generic (
+    pipeline : integer := 1
+  );
   port (
     clk     : in    std_logic;
     rst     : in    std_logic;
@@ -32,77 +35,130 @@ architecture behavioral of gauss_kernel is
   constant c_gauss_kernel    : t_KERNEL := (x"1", x"2", x"1", x"2", x"4", x"2", x"1", x"2", x"1");
   constant c_neutral_kernel  : t_KERNEL := (x"0", x"0", x"0", x"0", x"1", x"0", x"0", x"0", x"0");
   signal   s_line_concat     : t_PXL_ARRAY := (others => (others => '0'));
-  signal   s_mul_internal    : t_LONG_PXL_ARRAY := (others => (others => '0'));
+  signal   s_mul_internal0   : t_LONG_PXL_ARRAY := (others => (others => '0'));
+  signal   s_mul_internal1   : t_LONG_PXL_ARRAY := (others => (others => '0'));
   signal   s_result_internal : std_logic_vector(11 downto 0) := (others => '0');
 
   signal s_valid_t0 : std_logic := '0';
   signal s_valid_t1 : std_logic := '0';
+  signal s_valid_t2 : std_logic := '0';
 
-  signal s_acc_internal : unsigned(11 downto 0) := (others => '0');
+  signal s_acc_internal0 : unsigned(11 downto 0) := (others => '0');
+  signal s_acc_internal1 : unsigned(11 downto 0) := (others => '0');
 
 begin
 
   s_line_concat <= (line0_i(0), line0_i(1), line0_i(2), line1_i(0), line1_i(1), line1_i(2), line2_i(0), line2_i(1), line2_i(2));
 
-  process (clk) is
+  g_pipeline : if pipeline = 1 generate
 
-    variable v_acc_internal : unsigned(11 downto 0) := (others => '0');
+    process (clk) is
 
-  begin
+      variable v_acc_internal : unsigned(11 downto 0) := (others => '0');
 
-    if rising_edge(clk) then
-      if (rst = '0') then
-        valid_o        <= '0';
-        v_acc_internal := (others => '0');
-        s_mul_internal <= (others => (others => '0'));
-      else
+    begin
 
-        for I in 0 to 2 loop
+      if rising_edge(clk) then
+        if (rst = '0') then
+          valid_o         <= '0';
+          v_acc_internal  := (others => '0');
+          s_acc_internal0 <= (others => '0');
+          s_acc_internal1 <= (others => '0');
+          s_mul_internal0 <= (others => (others => '0'));
+          s_mul_internal1 <= (others => (others => '0'));
+        else
 
-          case I is
+          for I in 0 to 3 loop
 
-            when 0 =>
+            case I is
 
-              if (valid_i = '1') then
+              when 0 =>
 
-                mul : for J in 0 to 8 loop
+                if (valid_i = '1') then
 
-                  s_mul_internal(J) <= (c_gauss_kernel(J)) * (s_line_concat(J));
+                  mul : for J in 0 to 8 loop
 
-                end loop mul;
+                    s_mul_internal0(J) <= (c_gauss_kernel(J)) * (s_line_concat(J));
 
-              end if;
-              s_valid_t0 <= valid_i;
+                  end loop mul;
 
-            when 1 =>
+                end if;
+                s_valid_t0 <= valid_i;
 
-              for J in 0 to 8 loop
+              when 1 =>
 
-                v_acc_internal := v_acc_internal + s_mul_internal(J);
+                for J in 0 to 4 loop
 
-              end loop;
+                  v_acc_internal := v_acc_internal + s_mul_internal0(J);
 
-              s_acc_internal <= v_acc_internal;
-              v_acc_internal := (others => '0');
-              s_valid_t1     <= s_valid_t0;
+                end loop;
 
-            when 2 =>
+                s_mul_internal1 <= s_mul_internal0;
+                s_acc_internal0 <= v_acc_internal;
+                v_acc_internal  := (others => '0');
+                s_valid_t1      <= s_valid_t0;
 
-              s_result_internal <= std_logic_vector(shift_right(s_acc_internal, 4));
-              valid_o           <= s_valid_t1;
+              when 2 =>
 
-            when others =>
+                for J in 5 to 8 loop
 
-              null;
+                  v_acc_internal := v_acc_internal + s_mul_internal1(J);
 
-          end case;
+                end loop;
 
-        end loop;
+                s_acc_internal1 <= v_acc_internal + s_acc_internal0;
+                v_acc_internal  := (others => '0');
+                s_valid_t2      <= s_valid_t1;
 
+              when 3 =>
+
+                s_result_internal <= std_logic_vector(shift_right(s_acc_internal1, 4));
+                valid_o           <= s_valid_t2;
+
+              when others =>
+
+                null;
+
+            end case;
+
+          end loop;
+
+        end if;
       end if;
-    end if;
 
-  end process;
+    end process;
+
+  end generate g_pipeline;
+
+  g_nopipeline : if pipeline = 0 generate
+
+    process (clk) is
+
+      variable v_acc_internal : unsigned(11 downto 0) := (others => '0');
+
+    begin
+
+      if rising_edge(clk) then
+        if (rst = '0') then
+          valid_o        <= '0';
+          v_acc_internal := (others => '0');
+        else
+          valid_o <= valid_i;
+
+          mul : for J in 0 to 8 loop
+
+            v_acc_internal := v_acc_internal + (c_gauss_kernel(J) * s_line_concat(J));
+
+          end loop mul;
+
+          s_result_internal <= std_logic_vector(shift_right(v_acc_internal, 4));
+          v_acc_internal    := (others => '0');
+        end if;
+      end if;
+
+    end process;
+
+  end generate g_nopipeline;
 
   pixel_o <= s_result_internal(7 downto 0);
 

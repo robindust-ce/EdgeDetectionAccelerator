@@ -17,6 +17,7 @@ library work;
 
 entity sobel_top is
   generic (
+    pipeline  : integer := 1;
     tot_lines : integer := 525;
     tot_cols  : integer := 800;
     im_lines  : integer := 480;
@@ -60,6 +61,10 @@ architecture behavioral of sobel_top is
   end component;
 
   component sobel_kernel is
+    generic (
+      data_width : integer := 8;
+      pipeline   : integer := 1
+    );
     port (
       lb0_i      : in    t_LINEBUFFER_OUT;
       lb1_i      : in    t_LINEBUFFER_OUT;
@@ -98,6 +103,10 @@ begin
     );
 
   i_sobel : component sobel_kernel
+    generic map (
+      data_width => 8,
+      pipeline   => pipeline
+    )
     port map (
       lb0_i      => s_kernel_din0,
       lb1_i      => s_kernel_din1,
