@@ -81,65 +81,57 @@ begin
           s_res_sobel_xy <= (others => '0');
         else
 
-          for I in 0 to 3 loop
+            ---------------
+            -- Stage 1
+            ---------------
+            mul : for J in 0 to 8 loop
 
-            case I is
+                s_mul_internal_x(J) <= resize((c_sobel_x(J)) * (s_line_concat(J)), 12);
+                s_mul_internal_y(J) <= resize((c_sobel_y(J)) * (s_line_concat(J)), 12);
 
-              when 0 =>
+            end loop mul;
 
-                mul : for J in 0 to 8 loop
+            s_valid_t0 <= valid_i;
 
-                  s_mul_internal_x(J) <= resize((c_sobel_x(J)) * (s_line_concat(J)), 12);
-                  s_mul_internal_y(J) <= resize((c_sobel_y(J)) * (s_line_concat(J)), 12);
+            ---------------
+            -- Stage 2
+            ---------------
+            for J in 0 to 8 loop
 
-                end loop mul;
+                v_acc_int_x := v_acc_int_x + s_mul_internal_x(J);
+                v_acc_int_y := v_acc_int_y + s_mul_internal_y(J);
 
-                s_valid_t0 <= valid_i;
+            end loop;
 
-              when 1 =>
+            s_res_sobel_x <= v_acc_int_x;
+            s_res_sobel_y <= v_acc_int_y;
+            v_acc_int_x   := (others => '0');
+            v_acc_int_y   := (others => '0');
+            s_valid_t1    <= s_valid_t0;
 
-                for J in 0 to 8 loop
+            ---------------
+            -- Stage 3
+            ---------------
+            s_res_sobel_xy <= abs(s_res_sobel_x) + abs(s_res_sobel_y);
+            s_valid_t2     <= s_valid_t1;
 
-                  v_acc_int_x := v_acc_int_x + s_mul_internal_x(J);
-                  v_acc_int_y := v_acc_int_y + s_mul_internal_y(J);
-
-                end loop;
-
-                s_res_sobel_x <= v_acc_int_x;
-                s_res_sobel_y <= v_acc_int_y;
-                v_acc_int_x   := (others => '0');
-                v_acc_int_y   := (others => '0');
-                s_valid_t1    <= s_valid_t0;
-
-              when 2 =>
-
-                s_res_sobel_xy <= abs(s_res_sobel_x) + abs(s_res_sobel_y);
-                s_valid_t2     <= s_valid_t1;
-
-              when 3 =>
-
-                if (th_i /= "00000000000") then
-                  if (s_res_sobel_xy > signed("0" & th_i)) then
-                    sobel_xy_o <= (others => '1');
-                  else
-                    sobel_xy_o <= (others => '0');
-                  end if;
+            ---------------
+            -- Stage 4
+            ---------------
+            if (th_i /= "00000000000") then
+                if (s_res_sobel_xy > signed("0" & th_i)) then
+                sobel_xy_o <= (others => '1');
                 else
-                  if (s_res_sobel_xy > 255) then
-                    sobel_xy_o <= (others => '1');
-                  else
-                    sobel_xy_o <= std_logic_vector(s_res_sobel_xy(7 downto 0));
-                  end if;
+                sobel_xy_o <= (others => '0');
                 end if;
-                valid_o <= s_valid_t2;
-
-              when others =>
-
-                null;
-
-            end case;
-
-          end loop;
+            else
+                if (s_res_sobel_xy > 255) then
+                sobel_xy_o <= (others => '1');
+                else
+                sobel_xy_o <= std_logic_vector(s_res_sobel_xy(7 downto 0));
+                end if;
+            end if;
+            valid_o <= s_valid_t2;
 
         end if;
       end if;

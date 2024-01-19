@@ -68,60 +68,52 @@ begin
           s_mul_internal1 <= (others => (others => '0'));
         else
 
-          for I in 0 to 3 loop
+            ---------------
+            -- Stage 1
+            ---------------
+            if (valid_i = '1') then
 
-            case I is
+                mul : for J in 0 to 8 loop
 
-              when 0 =>
+                s_mul_internal0(J) <= (c_gauss_kernel(J)) * (s_line_concat(J));
 
-                if (valid_i = '1') then
+                end loop mul;
 
-                  mul : for J in 0 to 8 loop
+            end if;
+            s_valid_t0 <= valid_i;
 
-                    s_mul_internal0(J) <= (c_gauss_kernel(J)) * (s_line_concat(J));
+            ---------------
+            -- Stage 2
+            ---------------
+            for J in 0 to 4 loop
 
-                  end loop mul;
+                v_acc_internal := v_acc_internal + s_mul_internal0(J);
 
-                end if;
-                s_valid_t0 <= valid_i;
+            end loop;
 
-              when 1 =>
+            s_mul_internal1 <= s_mul_internal0;
+            s_acc_internal0 <= v_acc_internal;
+            v_acc_internal  := (others => '0');
+            s_valid_t1      <= s_valid_t0;
 
-                for J in 0 to 4 loop
+            ---------------
+            -- Stage 3
+            ---------------
+            for J in 5 to 8 loop
 
-                  v_acc_internal := v_acc_internal + s_mul_internal0(J);
+                v_acc_internal := v_acc_internal + s_mul_internal1(J);
 
-                end loop;
+            end loop;
 
-                s_mul_internal1 <= s_mul_internal0;
-                s_acc_internal0 <= v_acc_internal;
-                v_acc_internal  := (others => '0');
-                s_valid_t1      <= s_valid_t0;
+            s_acc_internal1 <= v_acc_internal + s_acc_internal0;
+            v_acc_internal  := (others => '0');
+            s_valid_t2      <= s_valid_t1;
 
-              when 2 =>
-
-                for J in 5 to 8 loop
-
-                  v_acc_internal := v_acc_internal + s_mul_internal1(J);
-
-                end loop;
-
-                s_acc_internal1 <= v_acc_internal + s_acc_internal0;
-                v_acc_internal  := (others => '0');
-                s_valid_t2      <= s_valid_t1;
-
-              when 3 =>
-
-                s_result_internal <= std_logic_vector(shift_right(s_acc_internal1, 4));
-                valid_o           <= s_valid_t2;
-
-              when others =>
-
-                null;
-
-            end case;
-
-          end loop;
+            ---------------
+            -- Stage 4
+            ---------------
+            s_result_internal <= std_logic_vector(shift_right(s_acc_internal1, 4));
+            valid_o           <= s_valid_t2;
 
         end if;
       end if;
