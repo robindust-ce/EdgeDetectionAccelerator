@@ -102,6 +102,7 @@ def generate_tests(obj):
 
 
 VU = VUnit.from_argv()
+VU.add_vhdl_builtins()
 LIB = VU.add_library("lib")
 LIB.add_source_files(Path(__file__).parent / ".." / "sim" / "edgedetect_tb.vhd")
 LIB.add_source_files(Path(__file__).parent / ".." / "src" / "rgb2gray.vhd")
